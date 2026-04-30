@@ -1,3 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano Treino · Vasco & Ana · 29 Nov</title>
+<style>
+:root{--bg:#f9fafb;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--border2:#cbd5e1;--text:#111827;--muted:#6b7280;--subtle:#9ca3af;--green:#16a34a;--green-l:#dcfce7;--blue:#1e40af;--blue-l:#dbeafe;--amber:#92400e;--amber-l:#fef3c7;--shadow:0 1px 3px rgba(0,0,0,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:999}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#profile-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.profile-wrap{width:100%;max-width:440px}
+.profile-title{font-size:22px;font-weight:700;text-align:center;margin-bottom:6px}
+.profile-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.profile-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.profile-btn{border:2px solid var(--border2);border-radius:14px;padding:24px 16px;background:var(--surface);text-align:center;transition:all .15s;box-shadow:var(--shadow)}
+.profile-btn:hover{transform:translateY(-2px)}
+.profile-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 10px}
+.profile-name{font-size:16px;font-weight:700;margin-bottom:4px}
+.profile-goal{font-size:11px;color:var(--muted)}
+.dual-btn{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:13px;font-weight:500}
+.dual-btn:hover{background:var(--text);color:#fff;border-color:var(--text)}
+#app{max-width:880px;margin:0 auto;padding:1rem 1rem 4rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;gap:8px;flex-wrap:wrap}
+.user-pill{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 6px;border-radius:999px;border:1px solid var(--border2);background:var(--surface);font-size:12px;font-weight:600}
+.user-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.switch-btn{font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:999px;padding:4px 10px}
+.switch-btn:hover{background:var(--text);color:#fff;border-color:var(--text)}
+.sync-indicator{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.sync-dot.syncing{background:#d97706;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tabs{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:999px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:13px;font-weight:500;transition:all .15s}
+.tab.active{background:var(--text);color:#fff;border-color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:.9rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;box-shadow:var(--shadow)}
+.stat-val{font-size:20px;font-weight:700}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.gbar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-bottom:1.2rem}
+.gfill{height:100%;border-radius:3px;transition:width .5s}
+.phase-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.pleg{font-size:10px;display:flex;align-items:center;gap:4px;color:var(--muted)}
+.pleg-dot{width:18px;height:3px;border-radius:2px;display:inline-block}
+.phase-bar{display:flex;height:3px;border-radius:2px;overflow:hidden;margin-bottom:1rem}
+.filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.fpill{padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:12px;transition:all .15s}
+.fpill.active{background:var(--text);color:#fff;border-color:var(--text)}
+.wcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:var(--shadow)}
+.wheader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;background:var(--surface2);user-select:none}
+.wleft{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.wright{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.wname{font-size:13px;font-weight:600}
+.wkm{font-size:11px;font-weight:600;background:var(--surface);border:1px solid var(--border2);border-radius:999px;padding:1px 8px}
+.wcnt{font-size:11px;color:var(--muted)}
+.wchev{font-size:10px;color:var(--subtle);transition:transform .2s}
+.wbar{height:2px;background:var(--border)}
+.wbarfill{height:100%;transition:width .3s}
+.wbody{display:none;padding:0 14px 14px}
+.wbody.open{display:block}
+.wnote{font-size:11px;color:var(--muted);margin-top:8px;padding-left:8px;border-left:2px solid var(--border2);font-style:italic}
+.wdates{font-size:11px;color:var(--subtle);margin-top:5px;margin-bottom:10px}
+.sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.scard{border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:var(--surface);transition:all .15s}
+.scard.off{opacity:.4;pointer-events:none}
+.shead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.slabel{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0;transition:all .15s}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.chip{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500;white-space:nowrap}
+.sdesc{font-size:11px;color:#374151;line-height:1.55;margin-bottom:5px}
+.gel{font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid #d97706;color:var(--amber);background:var(--amber-l);display:inline-block;margin-top:3px}
+.badge{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+.rf-block{margin-top:5px}
+.rf-row{display:flex;justify-content:space-between;align-items:flex-start;padding:4px 0;border-bottom:1px solid var(--border);gap:8px}
+.rf-row:last-child{border-bottom:none}
+.rf-name{font-size:11px;font-weight:600}
+.rf-note{font-size:10px;color:var(--muted);margin-top:1px}
+.rf-sets{font-size:10px;color:var(--blue);font-weight:600;white-space:nowrap}
+.dash-section{margin-bottom:1.75rem}
+.dash-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.pbar-row{margin-bottom:10px}
+.pbar-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.pbar{height:7px;border-radius:4px;background:var(--border);overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .5s}
+.type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.type-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.tbar{height:3px;border-radius:2px;background:var(--border);overflow:hidden}
+.tbar-fill{height:100%;border-radius:2px;transition:width .5s}
+.chart-bars{display:flex;align-items:flex-end;gap:3px;height:90px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.chart-lbl{font-size:7px;color:var(--subtle)}
+@media(max-width:520px){.sgrid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.type-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><span style="font-size:13px;color:var(--muted)">A ligar ao Firebase...</span></div>
+<div id="profile-screen" class="hidden">
+  <div class="profile-wrap">
+    <div class="profile-title">&#127939; Plano 29 de Novembro</div>
+    <div class="profile-sub">Escolhe o teu perfil</div>
+    <div class="profile-cards">
+      <button class="profile-btn" onclick="selectProfile('vasco')" style="border-color:#1e40af">
+        <div class="profile-avatar" style="background:#1e40af">V</div>
+        <div class="profile-name">Vasco</div>
+        <div class="profile-goal">Objetivo: 1h23&#8211;1h25</div>
+      </button>
+      <button class="profile-btn" onclick="selectProfile('ana')" style="border-color:#9d174d">
+        <div class="profile-avatar" style="background:#9d174d">A</div>
+        <div class="profile-name">Ana</div>
+        <div class="profile-goal">Objetivo: 2h06</div>
+      </button>
+    </div>
+    <button class="dual-btn" onclick="selectProfile('dual')">&#128202; Dashboard conjunto &#8212; Vasco vs Ana</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="user-pill" id="user-pill"><div class="user-dot" id="user-dot"></div><span id="user-name"></span></div>
+      <button class="switch-btn" onclick="goProfile()">Trocar perfil</button>
+    </div>
+    <div class="sync-indicator"><div class="sync-dot" id="sync-dot"></div><span id="sync-lbl">Sincronizado</span></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="stats" id="stats"></div>
+  <div class="gbar" id="gbar-wrap"><div class="gfill" id="gfill"></div></div>
+  <div id="plan-view"><div class="phase-legend" id="phaselegend"></div><div class="phase-bar" id="phasebar"></div><div class="filters" id="filters"></div><div id="weeks"></div></div>
+  <div id="dash-view" class="hidden"></div>
+  <div id="dual-view" class="hidden"></div>
+</div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import{getFirestore,doc,getDoc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -289,3 +425,5 @@ async function init(){
 }
 init();
 </script>
+</body>
+</html>
