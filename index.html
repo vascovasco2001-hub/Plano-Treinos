@@ -282,8 +282,10 @@ window.goProfile=function(){if(unsubV){unsubV();unsubV=null;}if(unsubA){unsubA()
 
 async function init(){
   try{const[sv,sa]=await Promise.all([getDoc(doc(db,"progress","vasco")),getDoc(doc(db,"progress","ana"))]);if(sv.exists())COMP.vasco=sv.data().comp||{};if(sa.exists())COMP.ana=sa.data().comp||{};}catch(e){console.error(e);}
-  document.getElementById("loading").classList.add("hidden");
-  document.getElementById("profile-screen").classList.remove("hidden");
+  const loadEl=document.getElementById("loading");
+  const profEl=document.getElementById("profile-screen");
+  if(loadEl) loadEl.classList.add("hidden");
+  if(profEl) profEl.classList.remove("hidden");
 }
 init();
 </script>
