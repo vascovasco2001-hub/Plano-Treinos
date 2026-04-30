@@ -1,0 +1,289 @@
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import{getFirestore,doc,getDoc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const FB={apiKey:"AIzaSyAahamHHFsliy1dsYVUOK8X97bfz5LCW64",authDomain:"descobrimentosss-29nov.firebaseapp.com",projectId:"descobrimentosss-29nov",storageBucket:"descobrimentosss-29nov.firebasestorage.app",messagingSenderId:"214654629504",appId:"1:214654629504:web:677055905e278f90d71865"};
+const db=getFirestore(initializeApp(FB));
+
+const RF={
+base1:[{n:"Agachamento búlgaro",s:"3×10 cada",note:"Peso corporal ou halteres leves"},{n:"Deadlift romeno",s:"3×10",note:"Cadeia posterior, coluna neutra"},{n:"Step-up com joelho alto",s:"3×12 cada",note:"Caixa 40–50 cm, controlo na descida"},{n:"Ponte de glúteos",s:"3×15",note:"Isométrico 2 seg no topo"},{n:"Prancha frontal",s:"3×30 seg",note:"Cotovelos, corpo reto"},{n:"Dead bug",s:"3×10 cada",note:"Lombar colada ao chão"}],
+base2:[{n:"Agachamento búlgaro",s:"3×12 cada",note:"Halteres 6–8 kg cada mão"},{n:"Deadlift romeno",s:"3×12",note:"Aumentar carga ligeiramente"},{n:"Step-up c/ joelho alto",s:"3×12 cada",note:"Adicionar halteres leves"},{n:"Ponte de glúteos unilateral",s:"3×12 cada",note:"Perna livre estendida"},{n:"Prancha lateral",s:"3×25 seg cada",note:"Progressão da prancha frontal"},{n:"Dead bug",s:"3×12 cada",note:"Movimento lento e controlado"},{n:"Calf raises unilateral",s:"3×15 cada",note:"Em degrau, amplitude total"}],
+build1:[{n:"Agachamento búlgaro",s:"4×10 cada",note:"Halteres 8–12 kg — explosão na subida"},{n:"Deadlift romeno",s:"4×10",note:"Barra 40–60 kg — excêntrica lenta 3 seg"},{n:"Step-up pliométrico",s:"3×8 cada",note:"Subida explosiva, descida controlada"},{n:"Pistol squat assistido",s:"3×8 cada",note:"TRX ou parede para apoio"},{n:"Hip thrust com barra",s:"4×12",note:"Barra no quadril, glúteos no topo"},{n:"Prancha com extensão",s:"3×8 cada",note:"Estender braço à frente em prancha"},{n:"Calf raises unilateral",s:"3×15 cada",note:"Em degrau, isométrico 1 seg"},{n:"Pallof press",s:"3×12 cada",note:"Cabo ou banda — anti-rotação core"}],
+build2:[{n:"Agachamento búlgaro",s:"4×12 cada",note:"Halteres 10–14 kg"},{n:"Deadlift romeno",s:"4×12",note:"Aumentar carga — 50–70 kg"},{n:"Passada com halteres",s:"4×12 cada",note:"Passada longa, joelho não ultrapassa pé"},{n:"Step-up pliométrico",s:"3×10 cada",note:"Caixa 50–60 cm"},{n:"Hip thrust unilateral",s:"3×12 cada",note:"Barra ou halter no quadril"},{n:"Prancha com row",s:"3×10 cada",note:"Em prancha, puxar halter alternado"},{n:"Calf raises com carga",s:"4×15 cada",note:"Halter na mão, máxima amplitude"},{n:"Pallof press",s:"3×12 cada",note:"Aumentar resistência banda/cabo"}],
+peak:[{n:"Agachamento búlgaro",s:"3×10 cada",note:"Manutenção — foco na técnica"},{n:"Deadlift romeno",s:"3×10",note:"Manutenção — sem aumentar carga"},{n:"Hip thrust",s:"3×12",note:"Ativar glúteos — carga moderada"},{n:"Calf raises unilateral",s:"3×15 cada",note:"Manutenção"},{n:"Prancha frontal + lateral",s:"2×30 seg cada",note:"Core estabilizador"},{n:"Dead bug",s:"2×10 cada",note:"Sem fadiga excessiva"}],
+manut:[{n:"Agachamento búlgaro",s:"3×10 cada",note:"Carga igual ao pico"},{n:"Hip thrust",s:"3×12",note:"Glúteos ativos"},{n:"Calf raises unilateral",s:"3×12 cada",note:"Amplitude total"},{n:"Prancha frontal",s:"2×30 seg",note:"Core"},{n:"Dead bug",s:"2×10 cada",note:"Mobilidade + estabilidade"}],
+taper:[{n:"Agachamento búlgaro",s:"2×8 cada",note:"Peso leve — estímulo sem fadiga"},{n:"Hip thrust",s:"2×10",note:"Glúteos ativos"},{n:"Calf raises unilateral",s:"2×10 cada",note:"Sem carga extra"},{n:"Prancha frontal",s:"2×20 seg",note:"Core leve"},{n:"Mobilidade de anca",s:"2×10 cada",note:"Amplitude articular"}]
+};
+
+const TC={int:{bg:"#dbeafe",fg:"#1e40af"},easy:{bg:"#dcfce7",fg:"#15803d"},tempo:{bg:"#fce7f3",fg:"#9d174d"},long:{bg:"#ede9fe",fg:"#5b21b6"},reforco:{bg:"#fef3c7",fg:"#92400e"},prova:{bg:"#d1fae5",fg:"#065f46"},off:{bg:"#f3f4f6",fg:"#9ca3af"}};
+const PC={base:{bg:"#dcfce7",fg:"#166534",bar:"#16a34a"},build:{bg:"#ede9fe",fg:"#4c1d95",bar:"#7c3aed"},peak:{bg:"#fee2e2",fg:"#991b1b",bar:"#dc2626"},manut:{bg:"#f3f4f6",fg:"#374151",bar:"#6b7280"},taper:{bg:"#fef2f2",fg:"#b91c1c",bar:"#ef4444"}};
+const TL={int:"Intervalados",easy:"Easy",tempo:"Tempo",long:"Long run",reforco:"Reforço",prova:"PROVA",off:"—"};
+const PL={base:"Base",build:"Construção",peak:"Pico",manut:"Manutenção",taper:"Taper"};
+
+const WV=[
+{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:32,note:"Retoma gradual — paces sem pressão",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×800 m @3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:9,dur:"50 min"},{l:"Easy",t:"easy",desc:"8 km easy @5:30–5:40 + 6×100 m strides",gel:"Sem gel",km:9,dur:"52 min"},{l:"Long run",t:"long",desc:"14 km easy @5:30",gel:"1 gel aos 40'",km:14,dur:"1h17"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:2,dates:"12–18 mai",phase:"base",deload:false,kmTotal:35,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×800 m @3:52–3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"55 min"},{l:"Easy",t:"easy",desc:"9 km easy + 6×100 m strides",gel:"Sem gel",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"15 km easy @5:30",gel:"1 gel aos 40'",km:15,dur:"1h23"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:3,dates:"19–25 mai",phase:"base",deload:false,kmTotal:37.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×1 km @3:50–3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:11.5,dur:"1h"},{l:"Easy",t:"easy",desc:"9 km easy + 8×100 m strides",gel:"Sem gel",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"16 km easy @5:30",gel:"1 gel aos 35' + 65'",km:16,dur:"1h28"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
+{n:4,dates:"26 mai–1 jun",phase:"base",deload:true,kmTotal:26.5,note:"Deload — volume −30%",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 3×800 m @3:55 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:7.5,dur:"40 min"},{l:"Easy",t:"easy",desc:"7 km easy",gel:"Sem gel",km:7,dur:"40 min"},{l:"Long run",t:"long",desc:"12 km easy @5:30",gel:"1 gel aos 35'",km:12,dur:"1h06"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
+{n:5,dates:"2–8 jun",phase:"base",deload:false,kmTotal:19.5,note:"Long run suprimida — férias a 4 jun",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×1 km @3:50–3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:11.5,dur:"1h"},{l:"Easy",t:"easy",desc:"8 km easy",gel:"Sem gel",km:8,dur:"46 min"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base2"},{l:"—",t:"off",desc:"Férias a 4 jun",gel:"—",km:0,dur:"—"}]},
+{n:6,dates:"9–13 jun",phase:"base",ferias:true,kmTotal:0,note:"Férias — descanso total",sessions:[{l:"Descanso",t:"off",desc:"Sem treino — recuperação ativa",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"}]},
+{n:7,dates:"16–22 jun",phase:"base",deload:true,kmTotal:31,note:"Retoma pós-férias",sessions:[{l:"Easy",t:"easy",desc:"8 km easy @5:40",gel:"Sem gel",km:8,dur:"46 min"},{l:"Easy",t:"easy",desc:"9 km easy + 4×100 m strides",gel:"Sem gel",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"13 km easy @5:40",gel:"1 gel aos 40'",km:13,dur:"1h14"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"base1"}]},
+{n:8,dates:"23–29 jun",phase:"build",deload:false,kmTotal:38.5,note:"Início construção",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×1 km @3:47–3:50 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:11.5,dur:"1h"},{l:"Easy",t:"easy",desc:"10 km easy + 6×100 m strides",gel:"Sem gel",km:11,dur:"1h03"},{l:"Long run",t:"long",desc:"16 km easy @5:30",gel:"1 gel aos 40'",km:16,dur:"1h28"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
+{n:9,dates:"30 jun–6 jul",phase:"build",deload:false,kmTotal:37.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 6×1 km @3:45–3:50 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:12.5,dur:"1h05"},{l:"Tempo",t:"tempo",desc:"2 km aq + 20 min @4:25–4:30 + 1 km cd",gel:"1 gel aos 15'",km:8,dur:"46 min"},{l:"Long run",t:"long",desc:"17 km easy @5:30",gel:"1 gel aos 40' + 70'",km:17,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
+{n:10,dates:"7–13 jul",phase:"build",deload:false,kmTotal:41.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×2 km @3:50–3:55 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:13.5,dur:"1h10"},{l:"Easy",t:"easy",desc:"10 km easy + 6×100 m strides",gel:"Sem gel",km:11,dur:"1h03"},{l:"Long run",t:"long",desc:"17 km (13 easy + 3 @4:20 + 1 cd)",gel:"2 géis: 35' + 65'",km:17,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build2"}]},
+{n:11,dates:"14–20 jul",phase:"build",deload:true,kmTotal:28.5,note:"Deload",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 3×1 km @3:50 (400 m jog) + 1,5 km cd",gel:"1 gel aos 20'",km:8.5,dur:"46 min"},{l:"Easy",t:"easy",desc:"7 km easy",gel:"Sem gel",km:7,dur:"40 min"},{l:"Long run",t:"long",desc:"13 km easy @5:30",gel:"1 gel aos 40'",km:13,dur:"1h12"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
+{n:12,dates:"21–27 jul",phase:"build",deload:false,kmTotal:39.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 6×1 km @3:43–3:47 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:12.5,dur:"1h05"},{l:"Tempo",t:"tempo",desc:"2 km aq + 25 min @4:20–4:25 + 1 km cd",gel:"1 gel aos 15'",km:9,dur:"51 min"},{l:"Long run",t:"long",desc:"18 km easy @5:30",gel:"2 géis: 35' + 65'",km:18,dur:"1h39"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:13,dates:"28 jul–3 ago",phase:"build",deload:false,kmTotal:45,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×2 km @3:50–3:53 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:15,dur:"1h18"},{l:"Easy",t:"easy",desc:"10 km easy + 6×100 m strides",gel:"Sem gel",km:11,dur:"1h03"},{l:"Long run",t:"long",desc:"19 km (14 easy + 4 @4:15 + 1 cd)",gel:"2 géis: 35' + 65'",km:19,dur:"1h45"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:14,dates:"4–10 ago",phase:"build",deload:false,kmTotal:43.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 7×1 km @3:42–3:45 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:13.5,dur:"1h12"},{l:"Tempo",t:"tempo",desc:"2 km aq + 30 min @4:15–4:20 + 1 km cd",gel:"1 gel aos 15'",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"20 km (14 easy + 5 @4:10 + 1 cd)",gel:"2 géis: 30' + 60'",km:20,dur:"1h51"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:15,dates:"11–17 ago",phase:"build",deload:true,kmTotal:29.5,note:"Deload",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 3×1 km @3:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 20'",km:8.5,dur:"46 min"},{l:"Easy",t:"easy",desc:"7 km easy",gel:"Sem gel",km:7,dur:"40 min"},{l:"Long run",t:"long",desc:"14 km easy @5:30",gel:"1 gel aos 40'",km:14,dur:"1h17"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:16,dates:"18–24 ago",phase:"build",deload:false,kmTotal:43.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 6×1 km @3:40–3:43 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:12.5,dur:"1h05"},{l:"Tempo",t:"tempo",desc:"2 km aq + 35 min @4:12–4:15 + 1 km cd",gel:"2 géis: 10' antes + 30'",km:11,dur:"1h03"},{l:"Long run",t:"long",desc:"20 km (13 easy + 6 @4:08 + 1 cd)",gel:"2 géis: 30' + 60'",km:20,dur:"1h51"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:17,dates:"25–31 ago",phase:"build",deload:false,kmTotal:46.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×2 km @3:47–3:50 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:13.5,dur:"1h10"},{l:"Easy",t:"easy",desc:"11 km easy + 6×100 m strides",gel:"Sem gel",km:12,dur:"1h08"},{l:"Long run",t:"long",desc:"21 km (14 easy + 6 @4:05 + 1 cd)",gel:"2 géis: 30' + 60'",km:21,dur:"1h57"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:18,dates:"1–7 set",phase:"build",deload:true,kmTotal:32.5,note:"Deload antes do bloco de pico",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 3×1 km @3:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 20'",km:8.5,dur:"46 min"},{l:"Easy",t:"easy",desc:"9 km easy",gel:"Sem gel",km:9,dur:"52 min"},{l:"Long run",t:"long",desc:"15 km easy @5:30",gel:"1 gel aos 40'",km:15,dur:"1h23"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:19,dates:"8–14 set",phase:"peak",deload:false,kmTotal:46.5,note:"Bloco de pico",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 7×1 km @3:40–3:43 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:13.5,dur:"1h12"},{l:"Tempo",t:"tempo",desc:"2 km aq + 40 min @4:08–4:12 + 1 km cd",gel:"2 géis: 10' antes + 35'",km:12,dur:"1h08"},{l:"Long run",t:"long",desc:"21 km (13 easy + 7 @4:05 + 1 cd)",gel:"2 géis: 30' + 60'",km:21,dur:"1h57"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"30 min",rf:"peak"}]},
+{n:20,dates:"15–21 set",phase:"peak",deload:false,kmTotal:49,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×2 km @3:45–3:48 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:15,dur:"1h18"},{l:"Tempo",t:"tempo",desc:"2 km aq + 40 min @4:05–4:08 + 1 km cd",gel:"2 géis: 10' antes + 35'",km:12,dur:"1h08"},{l:"Long run",t:"long",desc:"22 km (13 easy + 8 @4:02 + 1 cd)",gel:"2 géis: 30' + 60'",km:22,dur:"2h02"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"30 min",rf:"peak"}]},
+{n:21,dates:"22–28 set",phase:"peak",deload:false,kmTotal:47.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 8×1 km @3:40 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:14.5,dur:"1h15"},{l:"Tempo",t:"tempo",desc:"2 km aq + 45 min @4:03–4:07 + 1 km cd",gel:"2 géis: 10' antes + 35'",km:13,dur:"1h13"},{l:"Long run",t:"long",desc:"20 km @RP — pace alvo 3:58–4:01/km",gel:"2 géis: 30' + 60'",km:20,dur:"~1h20"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"peak"}]},
+{n:22,dates:"29 set–5 out",phase:"peak",deload:true,kmTotal:34,note:"Deload de pico",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×1 km @3:43 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:10,dur:"53 min"},{l:"Easy",t:"easy",desc:"9 km easy",gel:"Sem gel",km:9,dur:"52 min"},{l:"Long run",t:"long",desc:"15 km easy @5:30",gel:"1 gel aos 40'",km:15,dur:"1h23"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"30 min",rf:"peak"}]},
+{n:23,dates:"6–12 out",phase:"manut",deload:false,kmTotal:39.5,note:"Manutenção",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×1 km @3:42–3:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:11.5,dur:"1h"},{l:"Tempo",t:"tempo",desc:"2 km aq + 30 min @4:05–4:10 + 1 km cd",gel:"1 gel aos 20'",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"18 km easy @5:30",gel:"2 géis: 35' + 65'",km:18,dur:"1h39"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:24,dates:"13–19 out",phase:"manut",deload:false,kmTotal:37.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×1 km @3:42–3:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:11.5,dur:"1h"},{l:"Tempo",t:"tempo",desc:"2 km aq + 25 min @4:05 + 1 km cd",gel:"1 gel aos 15'",km:9,dur:"51 min"},{l:"Long run",t:"long",desc:"17 km (12 easy + 4 @RP + 1 cd)",gel:"2 géis: 35' + 65'",km:17,dur:"1h33"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:25,dates:"20–26 out",phase:"manut",deload:false,kmTotal:39,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×1 km @3:43 (400 m jog) + 1,5 km cd",gel:"1 gel aos 22'",km:10,dur:"53 min"},{l:"Easy",t:"easy",desc:"10 km easy + 6×100 m strides",gel:"Sem gel",km:11,dur:"1h03"},{l:"Long run",t:"long",desc:"18 km easy @5:30",gel:"2 géis: 35' + 65'",km:18,dur:"1h39"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:26,dates:"27 out–2 nov",phase:"manut",deload:false,kmTotal:35,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×1 km @3:43–3:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 22'",km:10,dur:"53 min"},{l:"Tempo",t:"tempo",desc:"2 km aq + 25 min @4:03–4:07 + 1 km cd",gel:"1 gel aos 15'",km:9,dur:"51 min"},{l:"Long run",t:"long",desc:"16 km (11 easy + 4 @RP + 1 cd)",gel:"2 géis: 35' + 60'",km:16,dur:"1h28"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:27,dates:"3–9 nov",phase:"taper",deload:false,kmTotal:33,note:"Início taper",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×1 km @3:43 (400 m jog) + 1,5 km cd",gel:"1 gel aos 22'",km:10,dur:"53 min"},{l:"Easy",t:"easy",desc:"8 km easy + 4×100 m strides",gel:"Sem gel",km:9,dur:"52 min"},{l:"Long run",t:"long",desc:"14 km easy @5:30",gel:"1 gel aos 40'",km:14,dur:"1h17"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"20 min",rf:"taper"}]},
+{n:28,dates:"10–16 nov",phase:"taper",deload:false,kmTotal:28,note:"Taper médio",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 3×1 km @3:43 (400 m jog) + 1 km cd",gel:"1 gel aos 20'",km:8,dur:"44 min"},{l:"Easy",t:"easy",desc:"7 km easy + 4×100 m strides",gel:"Sem gel",km:8,dur:"46 min"},{l:"Long run",t:"long",desc:"12 km easy @5:30",gel:"Sem gel",km:12,dur:"1h06"},{l:"—",t:"off",desc:"Descanso",gel:"—",km:0,dur:"—"}]},
+{n:29,dates:"17–29 nov",phase:"taper",deload:false,kmTotal:30.1,prova:true,note:"Semana da prova",sessions:[{l:"Easy (17 nov)",t:"easy",desc:"5 km easy + 4×100 m strides",gel:"Sem gel",km:6,dur:"35 min"},{l:"Easy (24 nov)",t:"easy",desc:"3 km muito leve",gel:"Sem gel",km:3,dur:"18 min"},{l:"Descanso (27)",t:"off",desc:"D-2 — descanso total",gel:"—",km:0,dur:"—"},{l:"PROVA (29 nov)",t:"prova",desc:"Meia maratona · objetivo 1h23–1h25 · pace ~3:58–4:01/km",gel:"3 géis: 10' antes + 30' + 60'",km:21.1,dur:"~1h24"}]}
+];
+
+const WA=[
+{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:31.5,note:"Retoma gradual — paces sem pressão",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×800 m @5:40–5:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:9.5,dur:"55 min"},{l:"Easy",t:"easy",desc:"9 km easy @6:30–6:40",gel:"Sem gel",km:9,dur:"1h00"},{l:"Long run",t:"long",desc:"13 km easy @6:30–6:40",gel:"1 gel aos 40'",km:13,dur:"1h27"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:2,dates:"12–18 mai",phase:"base",deload:false,kmTotal:33.5,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×800 m @5:38–5:43 (400 m jog) + 1,5 km cd",gel:"1 gel aos 30'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"9,5 km easy @6:30–6:40",gel:"Sem gel",km:9.5,dur:"1h04"},{l:"Long run",t:"long",desc:"14 km easy @6:30–6:40",gel:"1 gel aos 40'",km:14,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:3,dates:"19–25 mai",phase:"base",deload:false,kmTotal:35,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:35–5:40 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"10 km easy @6:30–6:40",gel:"Sem gel",km:10,dur:"1h07"},{l:"Long run",t:"long",desc:"15 km easy @6:30–6:40",gel:"1 gel aos 35' + 65'",km:15,dur:"1h41"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
+{n:4,dates:"26 mai–1 jun",phase:"base",deload:true,kmTotal:25.5,note:"Deload — volume −30%",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×800 m @5:40 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:7.5,dur:"43 min"},{l:"Easy",t:"easy",desc:"7 km easy @6:30–6:40",gel:"Sem gel",km:7,dur:"47 min"},{l:"Long run",t:"long",desc:"11 km easy @6:30–6:40",gel:"1 gel aos 40'",km:11,dur:"1h14"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
+{n:5,dates:"2–8 jun",phase:"base",deload:false,kmTotal:18,note:"Long run suprimida — férias a 4 jun",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:35–5:40 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"8 km easy @6:30–6:40",gel:"Sem gel",km:8,dur:"54 min"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base2"},{l:"—",t:"off",desc:"Férias a 4 jun",gel:"—",km:0,dur:"—"}]},
+{n:6,dates:"9–13 jun",phase:"base",ferias:true,kmTotal:0,note:"Férias — descanso total",sessions:[{l:"Descanso",t:"off",desc:"Sem treino — recuperação ativa",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"}]},
+{n:7,dates:"16–22 jun",phase:"base",deload:true,kmTotal:30,note:"Retoma pós-férias",sessions:[{l:"Easy",t:"easy",desc:"8 km easy @6:40–6:50",gel:"Sem gel",km:8,dur:"55 min"},{l:"Easy",t:"easy",desc:"10 km easy @6:35–6:45 + 4×100 m strides",gel:"Sem gel",km:10,dur:"1h08"},{l:"Long run",t:"long",desc:"12 km easy @6:35–6:45",gel:"1 gel aos 40'",km:12,dur:"1h21"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"base1"}]},
+{n:8,dates:"23–29 jun",phase:"build",deload:false,kmTotal:36,note:"Início construção",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×1 km @5:32–5:37 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:11,dur:"1h02"},{l:"Easy",t:"easy",desc:"10 km easy @6:30–6:40",gel:"Sem gel",km:10,dur:"1h07"},{l:"Long run",t:"long",desc:"15 km easy @6:30–6:40",gel:"1 gel aos 40'",km:15,dur:"1h41"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
+{n:9,dates:"30 jun–6 jul",phase:"build",deload:false,kmTotal:36,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 6×1 km @5:30–5:35 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:12,dur:"1h06"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 22 min @6:10–6:15 + 1,5 km cd",gel:"1 gel aos 15'",km:8,dur:"51 min"},{l:"Long run",t:"long",desc:"16 km easy @6:30–6:40",gel:"1 gel aos 40' + 70'",km:16,dur:"1h48"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
+{n:10,dates:"7–13 jul",phase:"build",deload:false,kmTotal:40,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×2 km @5:35–5:40 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:13,dur:"1h10"},{l:"Easy",t:"easy",desc:"11 km easy @6:30–6:40",gel:"Sem gel",km:11,dur:"1h14"},{l:"Long run",t:"long",desc:"16 km (12 easy + 3 @6:10 + 1 cd)",gel:"2 géis: 35' + 65'",km:16,dur:"1h48"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build2"}]},
+{n:11,dates:"14–20 jul",phase:"build",deload:true,kmTotal:27.5,note:"Deload",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×1 km @5:35 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:8.5,dur:"49 min"},{l:"Easy",t:"easy",desc:"7 km easy @6:30–6:40",gel:"Sem gel",km:7,dur:"47 min"},{l:"Long run",t:"long",desc:"12 km easy @6:30–6:40",gel:"1 gel aos 40'",km:12,dur:"1h21"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
+{n:12,dates:"21–27 jul",phase:"build",deload:false,kmTotal:38,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 6×1 km @5:28–5:33 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:12,dur:"1h06"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 27 min @6:08–6:12 + 1,5 km cd",gel:"1 gel aos 15'",km:9,dur:"54 min"},{l:"Long run",t:"long",desc:"17 km easy @6:20–6:30",gel:"2 géis: 35' + 65'",km:17,dur:"1h54"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:13,dates:"28 jul–3 ago",phase:"build",deload:false,kmTotal:43,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×2 km @5:33–5:38 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:14,dur:"1h17"},{l:"Easy",t:"easy",desc:"11 km easy @6:20–6:30",gel:"Sem gel",km:11,dur:"1h14"},{l:"Long run",t:"long",desc:"18 km (13 easy + 4 @6:08 + 1 cd)",gel:"2 géis: 35' + 65'",km:18,dur:"2h01"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:14,dates:"4–10 ago",phase:"build",deload:false,kmTotal:42,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 7×1 km @5:27–5:32 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:13,dur:"1h11"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 32 min @6:05–6:10 + 1,5 km cd",gel:"1 gel aos 15'",km:10,dur:"1h02"},{l:"Long run",t:"long",desc:"19 km (13 easy + 5 @6:05 + 1 cd)",gel:"2 géis: 30' + 60'",km:19,dur:"2h08"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:15,dates:"11–17 ago",phase:"build",deload:true,kmTotal:28.5,note:"Deload",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×1 km @5:33 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:8.5,dur:"49 min"},{l:"Easy",t:"easy",desc:"7 km easy @6:30–6:40",gel:"Sem gel",km:7,dur:"47 min"},{l:"Long run",t:"long",desc:"13 km easy @6:30–6:40",gel:"1 gel aos 40'",km:13,dur:"1h28"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:16,dates:"18–24 ago",phase:"build",deload:false,kmTotal:42,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 6×1 km @5:25–5:30 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:12,dur:"1h06"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 35 min @6:03–6:08 + 1,5 km cd",gel:"2 géis: 10' antes + 30'",km:11,dur:"1h07"},{l:"Long run",t:"long",desc:"19 km (13 easy + 5 @6:03 + 1 cd)",gel:"2 géis: 30' + 60'",km:19,dur:"2h08"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:17,dates:"25–31 ago",phase:"build",deload:false,kmTotal:45,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×2 km @5:30–5:35 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:13,dur:"1h10"},{l:"Easy",t:"easy",desc:"12 km easy @6:20–6:30",gel:"Sem gel",km:12,dur:"1h21"},{l:"Long run",t:"long",desc:"20 km (13 easy + 6 @6:02 + 1 cd)",gel:"2 géis: 30' + 60'",km:20,dur:"2h15"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:18,dates:"1–7 set",phase:"build",deload:true,kmTotal:31.5,note:"Deload antes do bloco de pico",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×1 km @5:30 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:8.5,dur:"49 min"},{l:"Easy",t:"easy",desc:"9 km easy @6:30–6:40",gel:"Sem gel",km:9,dur:"1h01"},{l:"Long run",t:"long",desc:"14 km easy @6:30–6:40",gel:"1 gel aos 40'",km:14,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"45 min",rf:"build2"}]},
+{n:19,dates:"8–14 set",phase:"peak",deload:false,kmTotal:45,note:"Bloco de pico",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 7×1 km @5:25–5:28 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:13,dur:"1h11"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 40 min @6:00–6:05 + 1,5 km cd",gel:"2 géis: 10' antes + 35'",km:12,dur:"1h14"},{l:"Long run",t:"long",desc:"20 km (13 easy + 6 @6:00 + 1 cd)",gel:"2 géis: 30' + 60'",km:20,dur:"2h15"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"30 min",rf:"peak"}]},
+{n:20,dates:"15–21 set",phase:"peak",deload:false,kmTotal:47,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×2 km @5:28–5:32 (600 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 45'",km:14,dur:"1h17"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 42 min @5:58–6:03 + 1,5 km cd",gel:"2 géis: 10' antes + 35'",km:12,dur:"1h14"},{l:"Long run",t:"long",desc:"21 km (13 easy + 7 @5:58 + 1 cd)",gel:"2 géis: 30' + 60'",km:21,dur:"2h22"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"30 min",rf:"peak"}]},
+{n:21,dates:"22–28 set",phase:"peak",deload:false,kmTotal:44.5,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 8×1 km @5:25 (400 m jog) + 1,5 km cd",gel:"2 géis: 10' antes + 40'",km:13.5,dur:"1h14"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 45 min @5:57–6:02 + 1,5 km cd",gel:"2 géis: 10' antes + 35'",km:12,dur:"1h14"},{l:"Long run",t:"long",desc:"19 km @RP — pace alvo 5:55–6:00/km",gel:"2 géis: 30' + 60'",km:19,dur:"~1h54"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"peak"}]},
+{n:22,dates:"29 set–5 out",phase:"peak",deload:true,kmTotal:33,note:"Deload de pico",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:28 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:10,dur:"57 min"},{l:"Easy",t:"easy",desc:"9 km easy @6:30–6:40",gel:"Sem gel",km:9,dur:"1h01"},{l:"Long run",t:"long",desc:"14 km easy @6:30–6:40",gel:"1 gel aos 40'",km:14,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"30 min",rf:"peak"}]},
+{n:23,dates:"6–12 out",phase:"manut",deload:false,kmTotal:38,note:"Manutenção",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×1 km @5:27–5:30 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:11,dur:"1h02"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 30 min @6:00–6:05 + 1,5 km cd",gel:"1 gel aos 20'",km:10,dur:"1h02"},{l:"Long run",t:"long",desc:"17 km easy @6:20–6:30",gel:"2 géis: 35' + 65'",km:17,dur:"1h54"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:24,dates:"13–19 out",phase:"manut",deload:false,kmTotal:36,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×1 km @5:27–5:30 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:11,dur:"1h02"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 25 min @5:58–6:03 + 1,5 km cd",gel:"1 gel aos 15'",km:9,dur:"54 min"},{l:"Long run",t:"long",desc:"16 km (11 easy + 4 @RP + 1 cd)",gel:"2 géis: 35' + 65'",km:16,dur:"1h48"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:25,dates:"20–26 out",phase:"manut",deload:false,kmTotal:38,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:28 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:10,dur:"57 min"},{l:"Easy",t:"easy",desc:"11 km easy @6:20–6:30",gel:"Sem gel",km:11,dur:"1h14"},{l:"Long run",t:"long",desc:"17 km easy @6:20–6:30",gel:"2 géis: 35' + 65'",km:17,dur:"1h54"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:26,dates:"27 out–2 nov",phase:"manut",deload:false,kmTotal:34,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:28–5:32 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:10,dur:"57 min"},{l:"Tempo",t:"tempo",desc:"1,5 km aq + 25 min @5:57–6:02 + 1,5 km cd",gel:"1 gel aos 15'",km:9,dur:"54 min"},{l:"Long run",t:"long",desc:"15 km (10 easy + 4 @RP + 1 cd)",gel:"2 géis: 35' + 60'",km:15,dur:"1h41"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"manut"}]},
+{n:27,dates:"3–9 nov",phase:"taper",deload:false,kmTotal:32,note:"Início taper",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:28 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:10,dur:"57 min"},{l:"Easy",t:"easy",desc:"9 km easy @6:30–6:40",gel:"Sem gel",km:9,dur:"1h01"},{l:"Long run",t:"long",desc:"13 km easy @6:30–6:40",gel:"1 gel aos 40'",km:13,dur:"1h28"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"20 min",rf:"taper"}]},
+{n:28,dates:"10–16 nov",phase:"taper",deload:false,kmTotal:27,note:"Taper médio",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×1 km @5:30 (400 m jog) + 1 km cd",gel:"1 gel aos 22'",km:8,dur:"46 min"},{l:"Easy",t:"easy",desc:"8 km easy @6:30–6:40",gel:"Sem gel",km:8,dur:"54 min"},{l:"Long run",t:"long",desc:"11 km easy @6:30–6:40",gel:"Sem gel",km:11,dur:"1h14"},{l:"—",t:"off",desc:"Descanso",gel:"—",km:0,dur:"—"}]},
+{n:29,dates:"17–29 nov",phase:"taper",deload:false,kmTotal:30.1,prova:true,note:"Semana da prova",sessions:[{l:"Easy (17 nov)",t:"easy",desc:"5 km easy @6:35 + 4×100 m strides",gel:"Sem gel",km:6,dur:"40 min"},{l:"Easy (24 nov)",t:"easy",desc:"3 km muito leve @6:45",gel:"Sem gel",km:3,dur:"20 min"},{l:"Descanso (27)",t:"off",desc:"D-2 — descanso total",gel:"—",km:0,dur:"—"},{l:"PROVA (29 nov)",t:"prova",desc:"Meia maratona · objetivo 2h06 · pace ~5:55–6:00/km",gel:"3 géis: 10' antes + 30' + 60'",km:21.1,dur:"~2h06"}]}
+];
+
+const PLANS={
+  vasco:{name:"Vasco",goal:"1h23–1h25",color:"#1e40af",colorL:"#dbeafe",totalKm:1065,weeks:WV},
+  ana:  {name:"Ana",  goal:"2h06",      color:"#9d174d",colorL:"#fce7f3",totalKm:988, weeks:WA}
+};
+
+let PROFILE=null,COMP={vasco:{},ana:{}},EXP={},FILT="all",TAB="plan";
+let unsubV=null,unsubA=null;
+
+function setSyncing(on){const d=document.getElementById("sync-dot"),l=document.getElementById("sync-lbl");if(!d)return;d.className="sync-dot"+(on?" syncing":"");l.textContent=on?"A sincronizar...":"Sincronizado";}
+async function saveP(p){setSyncing(true);try{await setDoc(doc(db,"progress",p),{comp:COMP[p],updatedAt:Date.now()});}catch(e){console.error(e);}setSyncing(false);}
+function subP(p,cb){return onSnapshot(doc(db,"progress",p),s=>{if(s.exists()){COMP[p]=s.data().comp||{};cb();}});}
+
+function badge(t,bg,fg){return`<span class="badge" style="background:${bg};color:${fg}">${t}</span>`;}
+function chip(t,bg,fg){return`<span class="chip" style="background:${bg};color:${fg}">${t}</span>`;}
+
+function getStats(p){
+  const pl=PLANS[p],c=COMP[p];
+  const cnt=pl.weeks.flatMap(w=>w.sessions.map((s,i)=>({wn:w.n,si:i,s}))).filter(x=>x.s.t!=="off");
+  const dn=Object.values(c).filter(Boolean).length;
+  const dkm=pl.weeks.reduce((t,w)=>t+w.sessions.reduce((wt,s,si)=>wt+(c[`${w.n}-${si}`]&&s.km>0?s.km:0),0),0);
+  return{dn,dkm,pct:Math.round(dn/cnt.length*100),total:cnt.length,totalKm:pl.totalKm};
+}
+function wStats(w,c){
+  const cnt=w.sessions.filter(s=>s.t!=="off");
+  const dn=cnt.filter(s=>c[`${w.n}-${w.sessions.indexOf(s)}`]).length;
+  return{dn,pct:cnt.length?Math.round(dn/cnt.length*100):100,all:cnt.length>0&&dn===cnt.length,total:cnt.length};
+}
+
+function renderStats(){
+  if(PROFILE==="dual")return;
+  const pl=PLANS[PROFILE],{dn,dkm,pct,total,totalKm}=getStats(PROFILE);
+  document.getElementById("stats").innerHTML=[{v:`${dn}/${total}`,l:"Sessões feitas"},{v:`${pct}%`,l:"Cumprimento"},{v:`${Math.round(dkm)} km`,l:"Km feitos"},{v:`${Math.round(totalKm-dkm)} km`,l:"Km restantes"}].map(s=>`<div class="stat"><div class="stat-val" style="color:${pl.color}">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join("");
+  document.getElementById("gfill").style.cssText=`width:${pct}%;background:${pl.color}`;
+}
+
+function renderPhasebar(){
+  const segs=[["base","27%"],["build","38%"],["peak","14%"],["manut","14%"],["taper","7%"]];
+  document.getElementById("phaselegend").innerHTML=segs.map(([p])=>`<span class="pleg"><span class="pleg-dot" style="background:${PC[p].bar}"></span>${PL[p]}</span>`).join("");
+  document.getElementById("phasebar").innerHTML=segs.map(([p,w])=>`<div style="width:${w};height:100%;background:${PC[p].bar}"></div>`).join("");
+}
+function renderFilters(){
+  const opts=[["all","Todas"],["base","Base"],["build","Construção"],["peak","Pico"],["manut","Manutenção"],["taper","Taper"],["deload","Deload"],["done","Completas"],["pending","Por fazer"]];
+  document.getElementById("filters").innerHTML=opts.map(([v,l])=>`<button class="fpill" style="${FILT===v?'background:#111827;color:#fff;border-color:#111827':''}" onclick="setFilter('${v}')">${l}</button>`).join("");
+}
+function rfHtml(k){const e=RF[k];if(!e)return"";return`<div class="rf-block">${e.map(x=>`<div class="rf-row"><div><div class="rf-name">${x.n}</div><div class="rf-note">${x.note}</div></div><div class="rf-sets">${x.s}</div></div>`).join("")}</div>`;}
+
+function sHtml(s,si,wn,p){
+  const isOff=s.t==="off",done=!!COMP[p][`${wn}-${si}`],tc=TC[s.t]||TC.off,pl=PLANS[p];
+  return`<div class="scard" style="${done?`border:2px solid ${pl.color};background:#f0fdf4`:''};${isOff?'opacity:.4;pointer-events:none':''}" id="sc-${p}-${wn}-${si}" style="${done?`border-color:${pl.color}`:""}">
+    <div class="shead"><span class="slabel">${s.l}</span>${!isOff?`<button class="chk" style="${done?`background:${pl.color};border-color:${pl.color}`:''}" id="cb-${p}-${wn}-${si}" onclick="toggleS('${p}',${wn},${si})" style="${done?`background:${pl.color};border-color:${pl.color}`:""}">${done?"✓":""}</button>`:""}</div>
+    <div class="chips">${chip(TL[s.t],tc.bg,tc.fg)}${s.km>0?chip(s.km+" km","#f1f5f9","#374151"):""}${s.dur&&s.dur!=="—"?chip(s.dur,"#f1f5f9","#6b7280"):""}</div>
+    ${s.t==="reforco"?rfHtml(s.rf):(s.desc&&s.desc!=="—"?`<div class="sdesc">${s.desc}</div>`:"")}
+    ${s.gel&&s.gel!=="—"?`<span class="gel">${s.gel}</span>`:""}
+  </div>`;
+}
+
+function wHtml(w,p){
+  const pl=PLANS[p],c=COMP[p],{dn,pct,all,total}=wStats(w,c),isOpen=!!EXP[`${p}-${w.n}`],pc=PC[w.phase]||PC.base;
+  return`<div class="wcard" style="${all?`border:2px solid ${pl.color}`:''}" id="wc-${p}-${w.n}" style="${all?`border-color:${pl.color}`:""}">
+    <div class="wheader" onclick="toggleW('${p}',${w.n})">
+      <div class="wleft"><span class="wname">Semana ${w.n}</span>${badge(PL[w.phase],pc.bg,pc.fg)}${w.deload?badge("Deload","#fef3c7","#92400e"):""}${w.ferias?badge("Férias","#dbeafe","#1e40af"):""}${w.prova?badge("Prova","#d1fae5","#065f46"):""}${all?`<span class="badge" style="background:${pl.colorL};color:${pl.color}">✓ Completa</span>`:""}</div>
+      <div class="wright">${w.kmTotal>0?`<span class="wkm">${w.kmTotal} km</span>`:""}<span class="wcnt" id="wcnt-${p}-${w.n}">${dn}/${total}</span><span class="wchev" style="${isOpen?'transform:rotate(180deg)':'' }" id="wchev-${p}-${w.n}">▼</span></div>
+    </div>
+    <div class="wbar"><div class="wbarfill" id="wbf-${p}-${w.n}" style="width:${pct}%;background:${pl.color}"></div></div>
+    <div class="wbody" style="${isOpen?'display:block':'display:none'}" id="wb-${p}-${w.n}">
+      ${w.note?`<div class="wnote">${w.note}</div>`:""}
+      <div class="wdates">${w.dates}</div>
+      <div class="sgrid">${w.sessions.map((s,si)=>sHtml(s,si,w.n,p)).join("")}</div>
+    </div>
+  </div>`;
+}
+
+function renderWeeks(){
+  const p=PROFILE,pl=PLANS[p],c=COMP[p];
+  const vis=pl.weeks.filter(w=>{
+    if(FILT==="all")return true;if(FILT==="deload")return w.deload;
+    if(FILT==="done"){const ct=w.sessions.filter(s=>s.t!=="off");return ct.length&&ct.every(s=>c[`${w.n}-${w.sessions.indexOf(s)}`]);}
+    if(FILT==="pending"){const ct=w.sessions.filter(s=>s.t!=="off");return ct.some(s=>!c[`${w.n}-${w.sessions.indexOf(s)}`]);}
+    return w.phase===FILT;
+  });
+  document.getElementById("weeks").innerHTML=vis.map(w=>wHtml(w,p)).join("");
+}
+
+function renderDash(){
+  const p=PROFILE,pl=PLANS[p],c=COMP[p];
+  const cnt=pl.weeks.flatMap(w=>w.sessions.map((s,i)=>({wn:w.n,si:i,s}))).filter(x=>x.s.t!=="off");
+  const maxKm=Math.max(...pl.weeks.map(w=>w.kmTotal),1);
+  let html="";
+  html+=`<div class="dash-section"><div class="dash-title">Cumprimento por fase</div>`;
+  for(const ph of["base","build","peak","manut","taper"]){
+    const pw=pl.weeks.filter(w=>w.phase===ph);
+    const ps=pw.flatMap(w=>w.sessions.map((s,i)=>({wn:w.n,si:i,s}))).filter(x=>x.s.t!=="off");
+    const pd=ps.filter(x=>c[`${x.wn}-${x.si}`]).length;
+    const pp=ps.length?Math.round(pd/ps.length*100):0;
+    const pkm=pw.reduce((a,w)=>a+w.kmTotal,0);
+    const pkd=pw.reduce((a,w)=>a+w.sessions.reduce((b,s,si)=>b+(c[`${w.n}-${si}`]&&s.km>0?s.km:0),0),0);
+    const pc=PC[ph];
+    html+=`<div class="pbar-row"><div class="pbar-meta"><div style="display:flex;align-items:center;gap:8px">${badge(PL[ph],pc.bg,pc.fg)}<span style="font-size:11px;color:var(--muted)">${pd}/${ps.length} sessões · ${Math.round(pkd)}/${Math.round(pkm)} km</span></div><span style="font-size:12px;font-weight:700;color:${pc.bar}">${pp}%</span></div><div class="pbar"><div class="pbar-fill" style="background:${pc.bar};width:${pp}%"></div></div></div>`;
+  }
+  html+=`</div>`;
+  html+=`<div class="dash-section"><div class="dash-title">Volume semanal — planeado vs feito</div><div class="chart-bars">`;
+  pl.weeks.forEach(w=>{
+    const kd=w.sessions.reduce((a,s,si)=>a+(c[`${w.n}-${si}`]&&s.km>0?s.km:0),0);
+    const bh=Math.max(2,Math.round(w.kmTotal/maxKm*86)),dh=Math.round(kd/maxKm*86),pc=PC[w.phase];
+    html+=`<div class="chart-col"><div style="position:relative;width:100%;height:${bh}px"><div style="position:absolute;inset:0;background:#dbeafe;border:1px solid #93c5fd;border-radius:2px 2px 0 0"></div><div style="position:absolute;bottom:0;left:0;right:0;height:${dh}px;background:${pl.color};border-radius:2px 2px 0 0;opacity:.85"></div></div><div class="chart-lbl">${w.n}</div></div>`;
+  });
+  html+=`</div><div style="display:flex;gap:12px;margin-top:8px"><span style="font-size:10px;display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:10px;height:10px;background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;display:inline-block"></span>Planeado</span><span style="font-size:10px;display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;display:inline-block;background:${pl.color};opacity:.85"></span>Feito</span></div></div>`;
+  html+=`<div class="dash-section"><div class="dash-title">Sessões por tipo</div><div class="type-grid">`;
+  for(const tp of["int","easy","tempo","long","reforco"]){
+    const ts=cnt.filter(x=>x.s.t===tp),td=ts.filter(x=>c[`${x.wn}-${x.si}`]).length,tp2=ts.length?Math.round(td/ts.length*100):0,tc=TC[tp];
+    html+=`<div class="type-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">${chip(TL[tp],tc.bg,tc.fg)}<span style="font-size:12px;font-weight:700">${tp2}%</span></div><div style="font-size:11px;color:var(--muted);margin-bottom:5px">${td}/${ts.length}</div><div class="tbar"><div class="tbar-fill" style="background:${tc.fg};width:${tp2}%"></div></div></div>`;
+  }
+  html+=`</div></div>`;
+  document.getElementById("dash-view").innerHTML=html;
+}
+
+function renderDual(){
+  const pv=PLANS.vasco,pa=PLANS.ana,sv=getStats("vasco"),sa=getStats("ana");
+  let html=`<div class="dash-section"><div class="dash-title">Comparação directa</div>`;
+  [{l:"Sessões feitas",vv:`${sv.dn}/${sv.total}`,av:`${sa.dn}/${sa.total}`,vn:sv.dn/sv.total,an:sa.dn/sa.total},{l:"Km feitos",vv:`${Math.round(sv.dkm)} km`,av:`${Math.round(sa.dkm)} km`,vn:sv.dkm/sv.totalKm,an:sa.dkm/sa.totalKm},{l:"% cumprimento",vv:`${sv.pct}%`,av:`${sa.pct}%`,vn:sv.pct/100,an:sa.pct/100}].forEach(m=>{
+    html+=`<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">${m.l}</div><div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center"><div><div style="font-size:14px;font-weight:700;color:${pv.color};margin-bottom:3px">${m.vv}</div><div style="height:6px;border-radius:3px;background:var(--border);overflow:hidden"><div style="height:100%;background:${pv.color};width:${Math.round(m.vn*100)}%;border-radius:3px"></div></div></div><div style="font-size:10px;color:var(--muted);text-align:center;font-weight:700">VS</div><div><div style="font-size:14px;font-weight:700;color:${pa.color};margin-bottom:3px;text-align:right">${m.av}</div><div style="height:6px;border-radius:3px;background:var(--border);overflow:hidden"><div style="height:100%;background:${pa.color};width:${Math.round(m.an*100)}%;border-radius:3px;float:right"></div></div></div></div></div>`;
+  });
+  html+=`</div><div class="dash-section"><div class="dash-title">Cumprimento por fase</div>`;
+  html+=`<div style="display:grid;grid-template-columns:80px 1fr 30px 1fr;gap:6px;margin-bottom:8px;align-items:center"><div></div><div style="font-size:11px;font-weight:700;color:${pv.color};text-align:center">Vasco</div><div></div><div style="font-size:11px;font-weight:700;color:${pa.color};text-align:center">Ana</div></div>`;
+  for(const ph of["base","build","peak","manut","taper"]){
+    const vw=pv.weeks.filter(w=>w.phase===ph),aw=pa.weeks.filter(w=>w.phase===ph);
+    const vs=vw.flatMap(w=>w.sessions.map((s,i)=>({wn:w.n,si:i,s}))).filter(x=>x.s.t!=="off");
+    const as=aw.flatMap(w=>w.sessions.map((s,i)=>({wn:w.n,si:i,s}))).filter(x=>x.s.t!=="off");
+    const vd=vs.filter(x=>COMP.vasco[`${x.wn}-${x.si}`]).length,ad=as.filter(x=>COMP.ana[`${x.wn}-${x.si}`]).length;
+    const vp=vs.length?Math.round(vd/vs.length*100):0,ap=as.length?Math.round(ad/as.length*100):0,pc=PC[ph];
+    html+=`<div style="display:grid;grid-template-columns:80px 1fr 30px 1fr;gap:6px;align-items:center;margin-bottom:8px">${badge(PL[ph],pc.bg,pc.fg)}<div><div style="height:7px;border-radius:4px;background:var(--border);overflow:hidden"><div style="height:100%;background:${pv.color};width:${vp}%;border-radius:4px"></div></div><div style="font-size:10px;color:var(--muted);margin-top:2px">${vp}% (${vd}/${vs.length})</div></div><div style="font-size:10px;color:var(--subtle);text-align:center">vs</div><div><div style="height:7px;border-radius:4px;background:var(--border);overflow:hidden"><div style="height:100%;background:${pa.color};width:${ap}%;border-radius:4px"></div></div><div style="font-size:10px;color:var(--muted);margin-top:2px">${ap}% (${ad}/${as.length})</div></div></div>`;
+  }
+  html+=`</div>`;
+  const mK=Math.max(...pv.weeks.map(w=>w.kmTotal),...pa.weeks.map(w=>w.kmTotal),1);
+  html+=`<div class="dash-section"><div class="dash-title">Km feitos por semana</div><div class="chart-bars">`;
+  for(let i=0;i<29;i++){
+    const wv=pv.weeks[i],wa=pa.weeks[i];if(!wv||!wa)continue;
+    const kvd=wv.sessions.reduce((a,s,si)=>a+(COMP.vasco[`${wv.n}-${si}`]&&s.km>0?s.km:0),0);
+    const kad=wa.sessions.reduce((a,s,si)=>a+(COMP.ana[`${wa.n}-${si}`]&&s.km>0?s.km:0),0);
+    const bhv=Math.max(2,Math.round(wv.kmTotal/mK*86)),bhd=Math.max(2,Math.round(wa.kmTotal/mK*86));
+    const dv=Math.round(kvd/mK*86),da=Math.round(kad/mK*86);
+    html+=`<div class="chart-col" style="gap:1px"><div style="display:flex;gap:1px;align-items:flex-end;height:86px"><div style="flex:1;position:relative;height:${bhv}px"><div style="position:absolute;inset:0;background:#dbeafe;border:1px solid #93c5fd;border-radius:2px 2px 0 0"></div><div style="position:absolute;bottom:0;left:0;right:0;height:${dv}px;background:${pv.color};border-radius:2px 2px 0 0;opacity:.85"></div></div><div style="flex:1;position:relative;height:${bhd}px"><div style="position:absolute;inset:0;background:#fce7f3;border:1px solid #f9a8d4;border-radius:2px 2px 0 0"></div><div style="position:absolute;bottom:0;left:0;right:0;height:${da}px;background:${pa.color};border-radius:2px 2px 0 0;opacity:.85"></div></div></div><div class="chart-lbl">${i+1}</div></div>`;
+  }
+  html+=`</div><div style="display:flex;gap:12px;margin-top:8px"><span style="font-size:10px;display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:10px;height:10px;background:${pv.color};border-radius:2px;display:inline-block;opacity:.85"></span>Vasco</span><span style="font-size:10px;display:flex;align-items:center;gap:4px;color:var(--muted)"><span style="width:10px;height:10px;background:${pa.color};border-radius:2px;display:inline-block;opacity:.85"></span>Ana</span></div></div>`;
+  document.getElementById("dual-view").innerHTML=html;
+}
+
+window.toggleS=async function(p,wn,si){
+  const k=`${wn}-${si}`;COMP[p][k]=!COMP[p][k];await saveP(p);
+  const done=COMP[p][k],pl=PLANS[p],w=pl.weeks.find(x=>x.n===wn);
+  const sc=document.getElementById(`sc-${p}-${wn}-${si}`),cb=document.getElementById(`cb-${p}-${wn}-${si}`);
+  if(sc){sc.className="scard"+(done?" done":"")+(w.sessions[si].t==="off"?" off":"");sc.style.borderColor=done?pl.color:"";}
+  if(cb){cb.className="chk"+(done?" done":"");cb.textContent=done?"✓":"";cb.style.background=done?pl.color:"";cb.style.borderColor=done?pl.color:"";}
+  const{dn,pct,all,total}=wStats(w,COMP[p]);
+  const wbf=document.getElementById(`wbf-${p}-${wn}`),wcnt=document.getElementById(`wcnt-${p}-${wn}`),wc=document.getElementById(`wc-${p}-${wn}`);
+  if(wbf){wbf.style.width=pct+"%";wbf.style.background=pl.color;}
+  if(wcnt)wcnt.textContent=`${dn}/${total}`;
+  if(wc){wc.className="wcard"+(all?" complete":"");wc.style.borderColor=all?pl.color:"";const wh=wc.querySelector(".wheader");if(wh)wh.style.background=all?pl.colorL:"var(--surface2)";const eb=wc.querySelector(".complete-badge");if(all&&!eb){const b=document.createElement("span");b.className="badge complete-badge";b.style.cssText=`background:${pl.colorL};color:${pl.color}`;b.textContent="✓ Completa";wc.querySelector(".wleft").appendChild(b);}else if(!all&&eb)eb.remove();}
+  renderStats();
+};
+window.toggleW=function(p,n){const k=`${p}-${n}`;EXP[k]=!EXP[k];const b=document.getElementById(`wb-${p}-${n}`),c=document.getElementById(`wchev-${p}-${n}`);if(b)b.classList.toggle("open",!!EXP[k]);if(c)c.classList.toggle("open",!!EXP[k]);};
+window.setFilter=function(f){FILT=f;renderFilters();renderWeeks();};
+window.switchTab=function(t){
+  TAB=t;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(x=>{if(x.dataset.tab===t)x.classList.add("active");});
+  ["plan-view","dash-view","dual-view"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  if(t==="plan"){document.getElementById("plan-view").classList.remove("hidden");renderWeeks();}
+  if(t==="dash"){document.getElementById("dash-view").classList.remove("hidden");renderDash();}
+  if(t==="dual"){document.getElementById("dual-view").classList.remove("hidden");renderDual();}
+};
+
+window.selectProfile=async function(p){
+  PROFILE=p;FILT="all";TAB="plan";
+  document.getElementById("profile-screen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  if(unsubV){unsubV();unsubV=null;}if(unsubA){unsubA();unsubA=null;}
+  const pl=p!=="dual"?PLANS[p]:null;
+  const dot=document.getElementById("user-dot"),nm=document.getElementById("user-name"),pill=document.getElementById("user-pill");
+  if(p!=="dual"){dot.style.background=pl.color;dot.textContent=pl.name[0];nm.textContent=pl.name;pill.style.borderColor=pl.color;}
+  else{dot.style.background="#374151";dot.textContent="⚡";nm.textContent="Vasco & Ana";pill.style.borderColor="";}
+  const statsEl=document.getElementById("stats"),gbarEl=document.getElementById("gbar-wrap");
+  if(p==="dual"){statsEl.classList.add("hidden");gbarEl.classList.add("hidden");}else{statsEl.classList.remove("hidden");gbarEl.classList.remove("hidden");}
+  const tabs=p==="dual"?
+    `<button class="tab active" data-tab="dual" onclick="switchTab('dual')">Vasco vs Ana</button>`:
+    `<button class="tab active" data-tab="plan" onclick="switchTab('plan')">Plano</button><button class="tab" data-tab="dash" onclick="switchTab('dash')">Dashboard</button><button class="tab" data-tab="dual" onclick="switchTab('dual')">Vasco vs Ana</button>`;
+  document.getElementById("tabs").innerHTML=tabs;
+  ["plan-view","dash-view","dual-view"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  if(p==="dual"){document.getElementById("dual-view").classList.remove("hidden");TAB="dual";}
+  else{document.getElementById("plan-view").classList.remove("hidden");renderPhasebar();renderFilters();}
+  const refresh=()=>{renderStats();if(TAB==="plan")renderWeeks();if(TAB==="dash")renderDash();if(TAB==="dual")renderDual();};
+  unsubV=subP("vasco",refresh);unsubA=subP("ana",refresh);
+  renderStats();if(p!=="dual")renderWeeks();else renderDual();
+};
+window.goProfile=function(){if(unsubV){unsubV();unsubV=null;}if(unsubA){unsubA();unsubA=null;}document.getElementById("app").classList.add("hidden");document.getElementById("profile-screen").classList.remove("hidden");};
+
+async function init(){
+  try{const[sv,sa]=await Promise.all([getDoc(doc(db,"progress","vasco")),getDoc(doc(db,"progress","ana"))]);if(sv.exists())COMP.vasco=sv.data().comp||{};if(sa.exists())COMP.ana=sa.data().comp||{};}catch(e){console.error(e);}
+  document.getElementById("loading").classList.add("hidden");
+  document.getElementById("profile-screen").classList.remove("hidden");
+}
+init();
+</script>
