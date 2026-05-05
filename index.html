@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plano Treino · Vasco & Ana · 29 Nov</title>
+<title>Descobrimentosss 29nov</title>
 <style>
 :root{--bg:#f9fafb;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--border2:#cbd5e1;--text:#111827;--muted:#6b7280;--subtle:#9ca3af;--green:#16a34a;--green-l:#dcfce7;--blue:#1e40af;--blue-l:#dbeafe;--amber:#92400e;--amber-l:#fef3c7;--shadow:0 1px 3px rgba(0,0,0,.08)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -82,6 +82,18 @@ button{font-family:inherit;cursor:pointer}
 .rf-name{font-size:11px;font-weight:600}
 .rf-note{font-size:10px;color:var(--muted);margin-top:1px}
 .rf-sets{font-size:10px;color:var(--blue);font-weight:600;white-space:nowrap}
+.edit-btn{font-size:9px;padding:2px 7px;border-radius:999px;border:1px solid var(--border2);background:transparent;color:var(--muted);margin-top:5px;display:inline-block}
+.edit-btn:hover{background:var(--surface2)}
+.edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.edit-card{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,.15)}
+.edit-title{font-size:14px;font-weight:700;margin-bottom:14px}
+.edit-field{margin-bottom:12px}
+.edit-label{font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;display:block}
+.edit-input{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;font-size:13px;font-family:inherit}
+.edit-input:focus{outline:none;border-color:var(--blue)}
+.edit-actions{display:flex;gap:8px;margin-top:16px}
+.edit-save{flex:1;padding:9px;border-radius:8px;border:none;background:var(--text);color:#fff;font-size:13px;font-weight:600}
+.edit-cancel{padding:9px 14px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:13px}
 .dash-section{margin-bottom:1.75rem}
 .dash-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .pbar-row{margin-bottom:10px}
@@ -99,10 +111,22 @@ button{font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
+<div id="edit-modal" class="edit-modal hidden">
+  <div class="edit-card">
+    <div class="edit-title">Editar treino</div>
+    <div class="edit-field"><label class="edit-label">Descrição</label><input class="edit-input" id="edit-desc" type="text" placeholder="Descrição do treino"></div>
+    <div class="edit-field"><label class="edit-label">Km realizados</label><input class="edit-input" id="edit-km" type="number" step="0.1" min="0" placeholder="0.0"></div>
+    <div class="edit-field"><label class="edit-label">Duração</label><input class="edit-input" id="edit-dur" type="text" placeholder="ex: 45 min"></div>
+    <div class="edit-actions">
+      <button class="edit-cancel" onclick="closeEdit()">Cancelar</button>
+      <button class="edit-save" onclick="saveEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
 <div id="loading"><div class="spinner"></div><span style="font-size:13px;color:var(--muted)">A ligar ao Firebase...</span></div>
 <div id="profile-screen" class="hidden">
   <div class="profile-wrap">
-    <div class="profile-title">&#127939; Plano 29 de Novembro</div>
+    <div class="profile-title">&#127939; Descobrimentosss 29nov</div>
     <div class="profile-sub">Escolhe o teu perfil</div>
     <div class="profile-cards">
       <button class="profile-btn" onclick="selectProfile('vasco')" style="border-color:#1e40af">
@@ -157,7 +181,7 @@ const TL={int:"Intervalados",easy:"Easy",tempo:"Tempo",long:"Long run",reforco:"
 const PL={base:"Base",build:"Construção",peak:"Pico",manut:"Manutenção",taper:"Taper"};
 
 const WV=[
-{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:32,note:"Retoma gradual — paces sem pressão",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 4×800 m @3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:9,dur:"50 min"},{l:"Easy",t:"easy",desc:"8 km easy @5:30–5:40 + 6×100 m strides",gel:"Sem gel",km:9,dur:"52 min"},{l:"Long run",t:"long",desc:"14 km easy @5:30",gel:"1 gel aos 40'",km:14,dur:"1h17"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:20,note:"Recuperação ativa pós meia maratona — só easy",sessions:[{l:"Easy",t:"easy",desc:"5 km easy @5:40–5:50 — muito leve, recuperação ativa",gel:"Sem gel",km:5,dur:"30 min"},{l:"Easy",t:"easy",desc:"5 km easy @5:40–5:50 — muito leve",gel:"Sem gel",km:5,dur:"30 min"},{l:"Long run",t:"long",desc:"10 km easy @5:40–5:50 — primeiro long pós prova",gel:"Sem gel",km:10,dur:"58 min"},{l:"—",t:"off",desc:"Descanso",gel:"—",km:0,dur:"—"}]},
 {n:2,dates:"12–18 mai",phase:"base",deload:false,kmTotal:35,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×800 m @3:52–3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"55 min"},{l:"Easy",t:"easy",desc:"9 km easy + 6×100 m strides",gel:"Sem gel",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"15 km easy @5:30",gel:"1 gel aos 40'",km:15,dur:"1h23"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
 {n:3,dates:"19–25 mai",phase:"base",deload:false,kmTotal:37.5,sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 5×1 km @3:50–3:55 (400 m jog) + 1,5 km cd",gel:"1 gel aos 25'",km:11.5,dur:"1h"},{l:"Easy",t:"easy",desc:"9 km easy + 8×100 m strides",gel:"Sem gel",km:10,dur:"57 min"},{l:"Long run",t:"long",desc:"16 km easy @5:30",gel:"1 gel aos 35' + 65'",km:16,dur:"1h28"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
 {n:4,dates:"26 mai–1 jun",phase:"base",deload:true,kmTotal:26.5,note:"Deload — volume −30%",sessions:[{l:"Intervalados",t:"int",desc:"2 km aq + 3×800 m @3:55 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:7.5,dur:"40 min"},{l:"Easy",t:"easy",desc:"7 km easy",gel:"Sem gel",km:7,dur:"40 min"},{l:"Long run",t:"long",desc:"12 km easy @5:30",gel:"1 gel aos 35'",km:12,dur:"1h06"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
@@ -189,7 +213,7 @@ const WV=[
 ];
 
 const WA=[
-{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:31.5,note:"Retoma gradual — paces sem pressão",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×800 m @5:40–5:45 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:9.5,dur:"55 min"},{l:"Easy",t:"easy",desc:"9 km easy @6:30–6:40",gel:"Sem gel",km:9,dur:"1h00"},{l:"Long run",t:"long",desc:"13 km easy @6:30–6:40",gel:"1 gel aos 40'",km:13,dur:"1h27"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:20,note:"Recuperação ativa pós meia maratona — só easy",sessions:[{l:"Easy",t:"easy",desc:"5 km easy @6:40–6:50 — muito leve, recuperação ativa",gel:"Sem gel",km:5,dur:"34 min"},{l:"Easy",t:"easy",desc:"5 km easy @6:40–6:50 — muito leve",gel:"Sem gel",km:5,dur:"34 min"},{l:"Long run",t:"long",desc:"10 km easy @6:40–6:50 — primeiro long pós prova",gel:"Sem gel",km:10,dur:"1h08"},{l:"—",t:"off",desc:"Descanso",gel:"—",km:0,dur:"—"}]},
 {n:2,dates:"12–18 mai",phase:"base",deload:false,kmTotal:33.5,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×800 m @5:38–5:43 (400 m jog) + 1,5 km cd",gel:"1 gel aos 30'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"9,5 km easy @6:30–6:40",gel:"Sem gel",km:9.5,dur:"1h04"},{l:"Long run",t:"long",desc:"14 km easy @6:30–6:40",gel:"1 gel aos 40'",km:14,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
 {n:3,dates:"19–25 mai",phase:"base",deload:false,kmTotal:35,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:35–5:40 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"10 km easy @6:30–6:40",gel:"Sem gel",km:10,dur:"1h07"},{l:"Long run",t:"long",desc:"15 km easy @6:30–6:40",gel:"1 gel aos 35' + 65'",km:15,dur:"1h41"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
 {n:4,dates:"26 mai–1 jun",phase:"base",deload:true,kmTotal:25.5,note:"Deload — volume −30%",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×800 m @5:40 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:7.5,dur:"43 min"},{l:"Easy",t:"easy",desc:"7 km easy @6:30–6:40",gel:"Sem gel",km:7,dur:"47 min"},{l:"Long run",t:"long",desc:"11 km easy @6:30–6:40",gel:"1 gel aos 40'",km:11,dur:"1h14"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
@@ -239,7 +263,7 @@ function getStats(p){
   const pl=PLANS[p],c=COMP[p];
   const cnt=pl.weeks.flatMap(w=>w.sessions.map((s,i)=>({wn:w.n,si:i,s}))).filter(x=>x.s.t!=="off");
   const dn=Object.values(c).filter(Boolean).length;
-  const dkm=pl.weeks.reduce((t,w)=>t+w.sessions.reduce((wt,s,si)=>wt+(c[`${w.n}-${si}`]&&s.km>0?s.km:0),0),0);
+  const dkm=pl.weeks.reduce((t,w)=>t+w.sessions.reduce((wt,s,si)=>{const edit=EDITS[p]&&EDITS[p][`${w.n}-${si}`];const km=edit&&edit.km!=null?edit.km:s.km;return wt+(c[`${w.n}-${si}`]&&km>0?km:0);},0),0);
   return{dn,dkm,pct:Math.round(dn/cnt.length*100),total:cnt.length,totalKm:pl.totalKm};
 }
 function wStats(w,c){
@@ -271,15 +295,16 @@ function sHtml(s,si,wn,p){
   return`<div class="scard" style="${done?`border:2px solid ${pl.color};background:#f0fdf4`:''};${isOff?'opacity:.4;pointer-events:none':''}" id="sc-${p}-${wn}-${si}" style="${done?`border-color:${pl.color}`:""}">
     <div class="shead"><span class="slabel">${s.l}</span>${!isOff?`<button class="chk" style="${done?`background:${pl.color};border-color:${pl.color}`:''}" id="cb-${p}-${wn}-${si}" onclick="toggleS('${p}',${wn},${si})" style="${done?`background:${pl.color};border-color:${pl.color}`:""}">${done?"✓":""}</button>`:""}</div>
     <div class="chips">${chip(TL[s.t],tc.bg,tc.fg)}${s.km>0?chip(s.km+" km","#f1f5f9","#374151"):""}${s.dur&&s.dur!=="—"?chip(s.dur,"#f1f5f9","#6b7280"):""}</div>
-    ${s.t==="reforco"?rfHtml(s.rf):(s.desc&&s.desc!=="—"?`<div class="sdesc">${s.desc}</div>`:"")}
+    ${s.t==="reforco"?rfHtml(s.rf):(()=>{const ed=EDITS[p]&&EDITS[p][`${wn}-${si}`];const d=ed&&ed.desc?ed.desc:s.desc;return d&&d!=="—"?`<div class="sdesc">${d}</div>`:"";})()}
     ${s.gel&&s.gel!=="—"?`<span class="gel">${s.gel}</span>`:""}
+    ${!isOff?`<br><button class="edit-btn" onclick="openEdit(event,'${p}',${wn},${si})">✏️ Editar</button>`:""}
   </div>`;
 }
 
 function wHtml(w,p){
   const pl=PLANS[p],c=COMP[p],{dn,pct,all,total}=wStats(w,c),isOpen=!!EXP[`${p}-${w.n}`],pc=PC[w.phase]||PC.base;
   return`<div class="wcard" style="${all?`border:2px solid ${pl.color}`:''}" id="wc-${p}-${w.n}" style="${all?`border-color:${pl.color}`:""}">
-    <div class="wheader" onclick="toggleW('${p}',${w.n})">
+    <div class="wheader" data-p="${p}" data-n="${w.n}" onclick="toggleW(this.dataset.p, parseInt(this.dataset.n))">
       <div class="wleft"><span class="wname">Semana ${w.n}</span>${badge(PL[w.phase],pc.bg,pc.fg)}${w.deload?badge("Deload","#fef3c7","#92400e"):""}${w.ferias?badge("Férias","#dbeafe","#1e40af"):""}${w.prova?badge("Prova","#d1fae5","#065f46"):""}${all?`<span class="badge" style="background:${pl.colorL};color:${pl.color}">✓ Completa</span>`:""}</div>
       <div class="wright">${w.kmTotal>0?`<span class="wkm">${w.kmTotal} km</span>`:""}<span class="wcnt" id="wcnt-${p}-${w.n}">${dn}/${total}</span><span class="wchev" style="${isOpen?'transform:rotate(180deg)':'' }" id="wchev-${p}-${w.n}">▼</span></div>
     </div>
@@ -416,8 +441,59 @@ window.selectProfile=async function(p){
 };
 window.goProfile=function(){if(unsubV){unsubV();unsubV=null;}if(unsubA){unsubA();unsubA=null;}document.getElementById("app").classList.add("hidden");document.getElementById("profile-screen").classList.remove("hidden");};
 
+// Edit state
+let EDITS={vasco:{},ana:{}};
+let editCtx={p:null,wn:null,si:null};
+
+window.openEdit=function(e,p,wn,si){
+  e.stopPropagation();
+  editCtx={p,wn,si};
+  const plan=PLANS[p];
+  const w=plan.weeks.find(x=>x.n===wn);
+  const s=w.sessions[si];
+  const edits=EDITS[p][`${wn}-${si}`]||{};
+  document.getElementById("edit-desc").value=edits.desc||s.desc||"";
+  document.getElementById("edit-km").value=edits.km!=null?edits.km:s.km;
+  document.getElementById("edit-dur").value=edits.dur||s.dur||"";
+  document.getElementById("edit-modal").classList.remove("hidden");
+};
+
+window.closeEdit=function(){
+  document.getElementById("edit-modal").classList.add("hidden");
+  editCtx={p:null,wn:null,si:null};
+};
+
+window.saveEdit=async function(){
+  const{p,wn,si}=editCtx;
+  if(!p) return;
+  const desc=document.getElementById("edit-desc").value.trim();
+  const km=parseFloat(document.getElementById("edit-km").value)||0;
+  const dur=document.getElementById("edit-dur").value.trim();
+  EDITS[p][`${wn}-${si}`]={desc,km,dur};
+  // Save edits to Firebase
+  try{await setDoc(doc(db,"edits",p),{edits:EDITS[p],updatedAt:Date.now()});}catch(e){console.error(e);}
+  // Update displayed km done if session is marked complete
+  const comp=COMP[p][`${wn}-${si}`];
+  if(comp){
+    // Update the km done cell
+    const jcell=document.getElementById(`sc-${p}-${wn}-${si}`);
+  }
+  closeEdit();
+  renderWeeks();
+  renderStats();
+};
+
 async function init(){
-  try{const[sv,sa]=await Promise.all([getDoc(doc(db,"progress","vasco")),getDoc(doc(db,"progress","ana"))]);if(sv.exists())COMP.vasco=sv.data().comp||{};if(sa.exists())COMP.ana=sa.data().comp||{};}catch(e){console.error(e);}
+  try{
+    const[sv,sa,ev,ea]=await Promise.all([
+      getDoc(doc(db,"progress","vasco")),getDoc(doc(db,"progress","ana")),
+      getDoc(doc(db,"edits","vasco")),getDoc(doc(db,"edits","ana"))
+    ]);
+    if(sv.exists())COMP.vasco=sv.data().comp||{};
+    if(sa.exists())COMP.ana=sa.data().comp||{};
+    if(ev.exists())EDITS.vasco=ev.data().edits||{};
+    if(ea.exists())EDITS.ana=ea.data().edits||{};
+  }catch(e){console.error(e);}
   const loadEl=document.getElementById("loading");
   const profEl=document.getElementById("profile-screen");
   if(loadEl) loadEl.classList.add("hidden");
