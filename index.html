@@ -213,11 +213,31 @@ const WV=[
 ];
 
 const WA=[
-{n:1,dates:"5–11 mai",phase:"base",deload:false,kmTotal:20,note:"Recuperação ativa pós meia maratona — só easy",sessions:[{l:"Easy",t:"easy",desc:"5 km easy @6:40–6:50 — muito leve, recuperação ativa",gel:"Sem gel",km:5,dur:"34 min"},{l:"Easy",t:"easy",desc:"5 km easy @6:40–6:50 — muito leve",gel:"Sem gel",km:5,dur:"34 min"},{l:"Long run",t:"long",desc:"10 km easy @6:40–6:50 — primeiro long pós prova",gel:"Sem gel",km:10,dur:"1h08"},{l:"—",t:"off",desc:"Descanso",gel:"—",km:0,dur:"—"}]},
-{n:2,dates:"12–18 mai",phase:"base",deload:false,kmTotal:33.5,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×800 m @5:38–5:43 (400 m jog) + 1,5 km cd",gel:"1 gel aos 30'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"9,5 km easy @6:30–6:40",gel:"Sem gel",km:9.5,dur:"1h04"},{l:"Long run",t:"long",desc:"14 km easy @6:30–6:40",gel:"1 gel aos 40'",km:14,dur:"1h34"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
-{n:3,dates:"19–25 mai",phase:"base",deload:false,kmTotal:35,sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:35–5:40 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"10 km easy @6:30–6:40",gel:"Sem gel",km:10,dur:"1h07"},{l:"Long run",t:"long",desc:"15 km easy @6:30–6:40",gel:"1 gel aos 35' + 65'",km:15,dur:"1h41"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
-{n:4,dates:"26 mai–1 jun",phase:"base",deload:true,kmTotal:25.5,note:"Deload — volume −30%",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 3×800 m @5:40 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:7.5,dur:"43 min"},{l:"Easy",t:"easy",desc:"7 km easy @6:30–6:40",gel:"Sem gel",km:7,dur:"47 min"},{l:"Long run",t:"long",desc:"11 km easy @6:30–6:40",gel:"1 gel aos 40'",km:11,dur:"1h14"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"base2"}]},
-{n:5,dates:"2–8 jun",phase:"base",deload:false,kmTotal:18,note:"Long run suprimida — férias a 4 jun",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×1 km @5:35–5:40 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"58 min"},{l:"Easy",t:"easy",desc:"8 km easy @6:30–6:40",gel:"Sem gel",km:8,dur:"54 min"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base2"},{l:"—",t:"off",desc:"Férias a 4 jun",gel:"—",km:0,dur:"—"}]},
+{n:1,dates:"19–25 mai",phase:"base",deload:false,kmTotal:26,note:"Retoma com estímulo — paces suaves",sessions:[
+{l:"Easy",t:"easy",desc:"6 km easy @6:35–6:45 — retoma gradual",gel:"Sem gel",km:6,dur:"42 min"},
+{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×800 m @5:45–5:50 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:9,dur:"52 min"},
+{l:"Long run",t:"long",desc:"11 km easy @6:35–6:45",gel:"1 gel aos 40'",km:11,dur:"1h14"},
+{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base1"}]},
+{n:2,dates:"26 mai–1 jun",phase:"base",deload:false,kmTotal:29,note:"Progressão suave",sessions:[
+{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×800 m @5:42–5:47 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:10,dur:"56 min"},
+{l:"Easy",t:"easy",desc:"8 km easy @6:35–6:45",gel:"Sem gel",km:8,dur:"54 min"},
+{l:"Long run",t:"long",desc:"11 km easy @6:35–6:45",gel:"1 gel aos 40'",km:11,dur:"1h14"},
+{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base2"}]},
+{n:3,dates:"2–8 jun",phase:"base",deload:false,kmTotal:16,note:"Semana curta — férias a 4 jun",sessions:[
+{l:"Easy",t:"easy",desc:"8 km easy @6:35–6:45",gel:"Sem gel",km:8,dur:"54 min"},
+{l:"Intervalados",t:"int",desc:"1,5 km aq + 4×800 m @5:45 (400 m jog) + 1,5 km cd",gel:"Sem gel",km:8,dur:"46 min"},
+{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"35 min",rf:"base2"},
+{l:"—",t:"off",desc:"Férias a 4 jun — sessão suprimida",gel:"—",km:0,dur:"—"}]},
+{n:4,dates:"9–13 jun",phase:"base",ferias:true,kmTotal:0,note:"Férias — descanso total",sessions:[
+{l:"Descanso",t:"off",desc:"Sem treino — recuperação ativa",gel:"—",km:0,dur:"—"},
+{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},
+{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},
+{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"}]},
+{n:5,dates:"16–22 jun",phase:"base",deload:true,kmTotal:28,note:"Retoma pós-férias — sem pressão de paces",sessions:[
+{l:"Easy",t:"easy",desc:"8 km easy @6:40–6:50",gel:"Sem gel",km:8,dur:"55 min"},
+{l:"Easy",t:"easy",desc:"10 km easy @6:35–6:45 + 4×100 m strides",gel:"Sem gel",km:10,dur:"1h08"},
+{l:"Long run",t:"long",desc:"10 km easy @6:35–6:45",gel:"1 gel aos 40'",km:10,dur:"1h08"},
+{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"base1"}]},
 {n:6,dates:"9–13 jun",phase:"base",ferias:true,kmTotal:0,note:"Férias — descanso total",sessions:[{l:"Descanso",t:"off",desc:"Sem treino — recuperação ativa",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"},{l:"—",t:"off",desc:"—",gel:"—",km:0,dur:"—"}]},
 {n:7,dates:"16–22 jun",phase:"base",deload:true,kmTotal:30,note:"Retoma pós-férias",sessions:[{l:"Easy",t:"easy",desc:"8 km easy @6:40–6:50",gel:"Sem gel",km:8,dur:"55 min"},{l:"Easy",t:"easy",desc:"10 km easy @6:35–6:45 + 4×100 m strides",gel:"Sem gel",km:10,dur:"1h08"},{l:"Long run",t:"long",desc:"12 km easy @6:35–6:45",gel:"1 gel aos 40'",km:12,dur:"1h21"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"25 min",rf:"base1"}]},
 {n:8,dates:"23–29 jun",phase:"build",deload:false,kmTotal:36,note:"Início construção",sessions:[{l:"Intervalados",t:"int",desc:"1,5 km aq + 5×1 km @5:32–5:37 (400 m jog) + 1,5 km cd",gel:"1 gel aos 28'",km:11,dur:"1h02"},{l:"Easy",t:"easy",desc:"10 km easy @6:30–6:40",gel:"Sem gel",km:10,dur:"1h07"},{l:"Long run",t:"long",desc:"15 km easy @6:30–6:40",gel:"1 gel aos 40'",km:15,dur:"1h41"},{l:"Reforço",t:"reforco",gel:"—",km:0,dur:"40 min",rf:"build1"}]},
@@ -246,7 +266,7 @@ const WA=[
 
 const PLANS={
   vasco:{name:"Vasco",goal:"1h23–1h25",color:"#1e40af",colorL:"#dbeafe",totalKm:1053,weeks:WV},
-  ana:  {name:"Ana",  goal:"2h06",      color:"#9d174d",colorL:"#fce7f3",totalKm:976, weeks:WA}
+  ana:  {name:"Ana",  goal:"2h06",      color:"#9d174d",colorL:"#fce7f3",totalKm:947.5, weeks:WA}
 };
 
 let PROFILE=null,COMP={vasco:{},ana:{}},EXP={},FILT="all",TAB="plan";
